@@ -74,8 +74,10 @@ d3.csv("data/city_heat_stress.csv", d => ({
 
   // ── 8. DRAW FUNCTION (called on load + every dropdown change) ─
   function drawChart(selectedCity) {
-    const filtered = data.filter(d => d.city === selectedCity);
-
+    const filtered = allData.filter(d =>
+      d.city === currentCity &&
+      d.model === 'CESM2'   // lock to one model for plot 1
+    );
     // Update scales based on filtered data
     xScale.domain(d3.extent(filtered, d => d.time));
     yScale.domain([
