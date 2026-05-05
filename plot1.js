@@ -65,7 +65,7 @@ d3.csv("data/city_heat_stress.csv", d => ({
   // ── 7. POPULATE DROPDOWN ─────────────────────────────────────
   const cities = [...new Set(data.map(d => d.city))].sort();
 
-  d3.select("#city-select")
+  d3.select("#city-select-1")
     .selectAll("option")
     .data(cities)
     .join("option")
@@ -143,7 +143,7 @@ d3.csv("data/city_heat_stress.csv", d => ({
   drawChart(cities[0]);
 
   // Redraw whenever user changes selection
-  d3.select("#city-select").on("change", function() {
+  d3.select("#city-select-1").on("change", function() {
     drawChart(this.value);
   });
 });

@@ -14,6 +14,21 @@
   <section class="plot-section">
     <h2>Plot 1: Global Mean Surface Air Temperature</h2>
     <p class="plot-desc">Monthly and 12-month rolling mean of global average surface air temperature across CMIP6 models.</p>
+    <section class="plot-section">
+      <h2>Plot 1: Global Mean Surface Air Temperature</h2>
+      <p class="plot-desc">Monthly and 12-month rolling mean of global average surface air temperature across CMIP6 models.</p>
+    
+      <!-- add this -->
+      <div id="controls-1">
+        <div class="ctrl-group">
+          <label for="city-select-1">City</label>
+          <select id="city-select-1"></select>
+        </div>
+      </div>
+    
+      <div id="chart-1"></div>
+      <p class="chart-note">Data: CMIP6 NCAR CESM2 historical simulation · Rolling mean computed over 12-month window</p>
+    </section>
     <div id="chart-1"></div>
     <p class="chart-note">Data: CMIP6 NCAR CESM2 historical simulation · Rolling mean computed over 12-month window</p>
   </section>
