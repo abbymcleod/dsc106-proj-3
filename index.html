@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>City Heat Stress Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>City Heat Stress Dashboard</h1>
+  <p class="subtitle">Historical surface air temperature from CMIP6 climate models</p>
+
+  <!-- dropdown here -->
+  <div id="controls">
+    <label for="city-select">Select a city:</label>
+    <select id="city-select"></select>
+  </div>
+
+  <!-- D3 draws the chart inside this div -->
+  <div id="chart"></div>
+
+  <!-- Load D3 from CDN, then your script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="main.js"></script>
+
+</body>
+</html>

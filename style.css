@@ -1,0 +1,52 @@
+body {
+    font-family: sans-serif;
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 0 20px;
+    background: #fafafa;
+    color: #222;
+  }
+  
+  #controls {
+    margin-bottom: 20px;
+  }
+  
+  select {
+    font-size: 16px;
+    padding: 4px 8px;
+    margin-left: 8px;
+  }
+  
+  .subtitle {
+    color: #555;
+    font-size: 14px;
+  }
+  
+  /* D3 will create an <svg> inside #chart */
+  .axis text { font-size: 12px; }
+  .axis path, .axis line { stroke: #ccc; }
+  
+  .line-monthly {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1px;
+    opacity: 0.3;
+  }
+  
+  .line-rolling {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 2.5px;
+  }
+  
+  .line-anomaly {
+    fill: none;
+    stroke: tomato;
+    stroke-width: 2px;
+  }
+  
+  .threshold-line {
+    stroke: orange;
+    stroke-width: 1.5px;
+    stroke-dasharray: 6,3;
+  }
