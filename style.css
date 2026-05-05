@@ -50,3 +50,27 @@ body {
     stroke-width: 1.5px;
     stroke-dasharray: 6,3;
   }
+
+  .plot-section {
+    margin-bottom: 64px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .plot-section:last-of-type {
+    border-bottom: none;
+  }
+  
+  .plot-section h2 {
+    font-size: 18px;
+    font-weight: normal;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  
+  .plot-desc {
+    font-size: 13px;
+    color: #777;
+    font-style: italic;
+    margin-bottom: 20px;
+  }

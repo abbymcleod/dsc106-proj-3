@@ -5,7 +5,7 @@ const height = 450 - margin.top  - margin.bottom;
 
 // ── 2. CREATE SVG ──────────────────────────────────────────────
 // D3 selects the #chart div and appends an SVG into it
-const svg = d3.select("#chart")
+const svg = d3.select("#chart-1")
   .append("svg")
     .attr("width",  width  + margin.left + margin.right)
     .attr("height", height + margin.top  + margin.bottom)

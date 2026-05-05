@@ -8,20 +8,51 @@
 <body>
 
   <h1>City Heat Stress Dashboard</h1>
-  <p class="subtitle">Historical surface air temperature from CMIP6 climate models</p>
+  <p class="subtitle">Surface air temperature trends from CMIP6 historical simulations (1850–2014)</p>
 
-  <!-- dropdown here -->
-  <div id="controls">
-    <label for="city-select">Select a city:</label>
-    <select id="city-select"></select>
-  </div>
+  <!-- ── PLOT 1 ───────────────────────────────────────────────────────────── -->
+  <section class="plot-section">
+    <h2>Plot 1: Global Mean Surface Air Temperature</h2>
+    <p class="plot-desc">Monthly and 12-month rolling mean of global average surface air temperature across CMIP6 models.</p>
+    <div id="chart-1"></div>
+    <p class="chart-note">Data: CMIP6 NCAR CESM2 historical simulation · Rolling mean computed over 12-month window</p>
+  </section>
 
-  <!-- D3 draws the chart inside this div -->
-  <div id="chart"></div>
+  <!-- ── PLOT 2 ───────────────────────────────────────────────────────────── -->
+  <section class="plot-section">
+    <h2>Plot 2: City Heat Stress — Temperature by City and Season</h2>
+    <p class="plot-desc">Filter by city and season to explore local surface air temperature trends and anomalies relative to the 1850–1900 baseline.</p>
 
-  <!-- Load D3 from CDN, then your script -->
+    <div id="controls">
+      <div class="ctrl-group">
+        <label for="city-select">City</label>
+        <select id="city-select"></select>
+      </div>
+      <div class="ctrl-group">
+        <label>Season</label>
+        <div id="season-pills">
+          <button class="pill active" data-season="all">All</button>
+          <button class="pill" data-season="spring">Spring</button>
+          <button class="pill" data-season="summer">Summer</button>
+          <button class="pill" data-season="fall">Fall</button>
+          <button class="pill" data-season="winter">Winter</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="legend">
+      <span class="legend-item"><span class="swatch monthly"></span>Monthly</span>
+      <span class="legend-item"><span class="swatch rolling"></span>12-mo rolling mean</span>
+      <span class="legend-item"><span class="swatch threshold"></span>Historical summer baseline</span>
+    </div>
+
+    <div id="chart-2"></div>
+    <p class="chart-note">Dashed line = historical summer average (1850–1900) · Anomaly relative to 1850–1900 baseline mean</p>
+  </section>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-  <script src="main.js"></script>
+  <script src="plot1.js"></script>
+  <script src="plot2.js"></script>
 
 </body>
 </html>
