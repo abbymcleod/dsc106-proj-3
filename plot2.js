@@ -61,7 +61,7 @@ const SEASON_MONTHS = {
   const linesG = svg.append('g').attr('clip-path', 'url(#chart-clip)');
   
   // Tooltip div (positioned absolutely over the page)
-  const tooltip = d3.select('body').append('div').attr('class', 'tooltip');
+  const tooltip2 = d3.select('body').append('div').attr('class', 'tooltip tooltip-2');
   
   // Invisible overlay to capture mouse movement for tooltip
   const overlay = svg.append('rect')
@@ -75,12 +75,12 @@ const SEASON_MONTHS = {
   const yScale = d3.scaleLinear().range([height, 0]);
   
   // ── LINE GENERATORS ──────────────────────────────────────────────────────────
-  const lineMonthly = d3.line()
+  const lineMonthly2 = d3.line()
     .x(d => xScale(d.time))
     .y(d => yScale(d.tas_c))
     .defined(d => d.tas_c != null && !isNaN(d.tas_c));
   
-  const lineRolling = d3.line()
+  const lineRolling2 = d3.line()
     .x(d => xScale(d.time))
     .y(d => yScale(d.rolling_mean))
     .defined(d => d.rolling_mean != null && !isNaN(d.rolling_mean));
@@ -132,7 +132,7 @@ const SEASON_MONTHS = {
       .join('path')
         .attr('class', 'line-monthly')
         .transition().duration(400)
-        .attr('d', lineMonthly);
+        .attr('d', lineMonthly2);
   
     // 12-month rolling mean
     linesG.selectAll('.line-rolling')
@@ -140,7 +140,7 @@ const SEASON_MONTHS = {
       .join('path')
         .attr('class', 'line-rolling')
         .transition().duration(400)
-        .attr('d', lineRolling);
+        .attr('d', lineRolling2);
   
     // Threshold line (horizontal, spanning full x range)
     linesG.selectAll('.line-threshold')
@@ -164,7 +164,7 @@ const SEASON_MONTHS = {
         const d = filtered[Math.min(idx, filtered.length - 1)];
         if (!d) return;
   
-        tooltip
+        tooltip2
           .style('opacity', 1)
           .style('left', (event.pageX + 14) + 'px')
           .style('top',  (event.pageY - 28) + 'px')
@@ -175,7 +175,7 @@ const SEASON_MONTHS = {
             ${summerBaseline ? 'Summer baseline: ' + summerBaseline.toFixed(2) + '°C' : ''}
           `);
       })
-      .on('mouseleave', () => tooltip.style('opacity', 0));
+      .on('mouseleave', () => tooltip2.style('opacity', 0));
   }
   
   // ── LOAD DATA ─────────────────────────────────────────────────────────────────
