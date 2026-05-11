@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Climate Scenarios</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" defer></script>
+    <script src="scenario-plot.js" defer></script>
+    <script src="map-plot.js" defer></script>
+  </head>
+  <body>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="./index.html">Scenario Plots</a>
+    </nav>
+    <h1>Seasonal Temperature Trends Under Climate Scenarios</h1>
+    <p class="subtitle">
+      MPI-ESM1-2-HR model — solid lines = summer (JJA), dashed = winter (DJF)
+    </p>
+
+    <div id="controls">
+      <div class="control-group">
+        <label class="group-label">Cities</label>
+        <div class="btn-group" id="city-btns"></div>
+      </div>
+      <div class="control-group">
+        <label class="group-label">Scenarios</label>
+        <div class="btn-group" id="scenario-btns"></div>
+      </div>
+      <div id="scale-toggle">
+        <input type="checkbox" id="normalize-cb" />
+        <label for="normalize-cb">Per-city y-axis</label>
+      </div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+    <div id="chart-area"></div>
+  
+    <!-- <script>
+      // Static test — Chicago ssp245, stacked summer/winter panels
+      const TEST_CITY = "Chicago";
+      const TEST_SCENARIO = "ssp245";
+      const TEST_COLOR = "#FF9800";
+
+      const ttMargin = { top: 16, right: 20, bottom: 28, left: 44 };
+      const ttW = 340,
+        ttH = 160;
+      const ttInnerW = ttW - ttMargin.left - ttMargin.right;
+      const ttInnerH = ttH - ttMargin.top - ttMargin.bottom;
+
+      d3.csv("data/seasonal_temps.csv", (d) => ({
+        city: d.city,
+        scenario: d.scenario,
+        year: +d.year,
+        season: d.season,
+        temp_c: +d.temp_c,
+      })).then((data) => {
+        const cityData = data.filter((d) => d.city === TEST_CITY);
+
+        const container = d3
+          .select("body")
+          .append("div")
+          .style("background", "white")
+          .style("border", "1px solid #ddd")
+          .style("border-radius", "6px")
+          .style("padding", "12px")
+          .style("display", "inline-block")
+          .style("margin-top", "24px");
+
+        container
+          .append("h3")
+          .style("font-size", "0.9rem")
+          .style("margin-bottom", "8px")
+          .text(`${TEST_CITY} — SSP2-4.5 Moderate`);
+
+        ["summer", "winter"].forEach((season) => {
+          const seasonData = cityData.filter((d) => d.season === season);
+          const label = season === "summer" ? "Summer (JJA)" : "Winter (DJF)";
+
+          container
+            .append("p")
+            .style("font-size", "0.78rem")
+            .style("color", "#555")
+            .style("margin", "8px 0 2px")
+            .text(label);
+
+          const svg = container
+            .append("svg")
+            .attr("width", ttW)
+            .attr("height", ttH);
+          const g = svg
+            .append("g")
+            .attr("transform", `translate(${ttMargin.left},${ttMargin.top})`);
+
+          const x = d3.scaleLinear().domain([1850, 2100]).range([0, ttInnerW]);
+          const y = d3
+            .scaleLinear()
+            .domain([
+              d3.min(seasonData, (d) => d.temp_c) - 1,
+              d3.max(seasonData, (d) => d.temp_c) + 1,
+            ])
+            .range([ttInnerH, 0]);
+
+          g.append("g")
+            .attr("transform", `translate(0,${ttInnerH})`)
+            .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")));
+          g.append("g").call(
+            d3
+              .axisLeft(y)
+              .ticks(4)
+              .tickFormat((d) => `${d}°C`),
+          );
+
+          g.append("line")
+            .attr("x1", x(2015))
+            .attr("x2", x(2015))
+            .attr("y1", 0)
+            .attr("y2", ttInnerH)
+            .attr("stroke", "#ccc")
+            .attr("stroke-dasharray", "3,2");
+
+          [
+            { scenario: "historical", color: "#999" },
+            { scenario: TEST_SCENARIO, color: TEST_COLOR },
+          ].forEach(({ scenario, color }) => {
+            const lineData = seasonData.filter((d) => d.scenario === scenario);
+            if (!lineData.length) return;
+            g.append("path")
+              .datum(lineData)
+              .attr("fill", "none")
+              .attr("stroke", color)
+              .attr("stroke-width", 1.5)
+              .attr(
+                "d",
+                d3
+                  .line()
+                  .x((d) => x(d.year))
+                  .y((d) => y(d.temp_c))
+                  .curve(d3.curveCatmullRom)(lineData),
+              );
+          });
+        });
+      });
+    </script> -->
+  </body>
+</html>

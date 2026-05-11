@@ -1,0 +1,52 @@
+/* City plot styling */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; background: #f9f9f9; padding: 24px; }
+h1 { font-size: 1.4rem; margin-bottom: 4px; }
+p.subtitle { font-size: 0.9rem; color: #555; margin-bottom: 20px; }
+#controls { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-start; }
+.control-group label.group-label {
+    display: block; font-size: 0.75rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: #888; margin-bottom: 6px;
+}
+.btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn-group button {
+    padding: 5px 12px; border: 1.5px solid #ccc; border-radius: 4px;
+    background: white; cursor: pointer; font-size: 0.82rem; color: #333;
+    transition: all 0.15s;
+}
+.btn-group button.active {
+    border-color: var(--btn-color, #333);
+    background: var(--btn-color, #333);
+    color: white;
+}
+#scale-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-top: 24px; }
+#scale-toggle input { cursor: pointer; }
+#chart-area { display: flex; flex-wrap: wrap; gap: 16px; }
+.panel { background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; }
+.panel h3 { font-size: 0.9rem; margin-bottom: 8px; color: #333; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; font-size: 0.8rem; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-swatch { width: 24px; height: 3px; }
+.legend-swatch.dashed { background: repeating-linear-gradient(to right, currentColor 0, currentColor 4px, transparent 4px, transparent 8px); }
+
+/* Map plot styling */
+#map-section { margin-bottom: 48px; }
+
+#map-flex {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+#map-tooltip {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    display: none;
+    min-width: 380px;
+    flex-shrink: 0;
+}
+
+#map-tooltip h3 { font-size: 0.9rem; margin-bottom: 6px; }
