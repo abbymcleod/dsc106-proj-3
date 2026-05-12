@@ -77,7 +77,7 @@ function getSeriesPoints(city, scenario) {
 
   const byTime = d3.rollup(
     subset,
-    v => d3.mean(v, d => d.wb_anomaly),
+    v => d3.mean(v, d => d.wb_rolling),
     d => d.time
   );
 
