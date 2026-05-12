@@ -6,8 +6,8 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" defer></script>
-  <script src="scenario-plot.js" defer></script>
-  <script src="map-plot.js" defer></script>
+  <script src="scenario-plots/scenario-plot.js" defer></script>
+  <script src="scenario-plots/map-plot.js" defer></script>
   <script src="plot3.js"></script>
 </head>
 <body>
@@ -19,14 +19,14 @@
   <p class="subtitle">Surface air temperature trends from CMIP6 historical simulations (1850–2014)</p>
 
   <!-- ── PLOT 1 ───────────────────────────────────────────────────────────── -->
-  <section class="plot-section">
+   <!--<section class="plot-section">
     <h2>Plot 1: Global Mean Surface Air Temperature</h2>
     <p class="plot-desc">Monthly and 12-month rolling mean of global average surface air temperature across CMIP6 models.</p>
     <section class="plot-section">
       <h2>Plot 1: Global Mean Surface Air Temperature</h2>
-      <p class="plot-desc">Monthly and 12-month rolling mean of global average surface air temperature across CMIP6 models.</p>
+      <p class="plot-desc">Monthly and 12-month rolling mean of global average surface air temperature across CMIP6 models.</p> -->
     
-      <!-- add this -->
+      <!-- add this 
       <div id="controls-1">
         <div class="ctrl-group">
           <label for="city-select-1">City</label>
@@ -39,7 +39,7 @@
     </section>
     <div id="chart-1"></div>
     <p class="chart-note">Data: CMIP6 NCAR CESM2 historical simulation · Rolling mean computed over 12-month window</p>
-  </section>
+  </section> -->
 
   <!-- ── PLOT 2 ───────────────────────────────────────────────────────────── -->
   <!-- <section class="plot-section">
@@ -71,11 +71,11 @@
 
     <div id="chart-2"></div>
     <p class="chart-note">Dashed line = historical summer average (1850–1900) · Anomaly relative to 1850–1900 baseline mean</p>
-  </section> -->
+  </section> 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-  <script src="plot1.js"></script>
-  <!-- <script src="plot2.js"></script> -->
+  <script src="plot1.js"></script> -->
+  <!-- <script src="plot2.js"></script>
   <section class="plot-section">
     <h2>Static Plot Drafts</h2>
     <img src="figures/full_timeseries.png" alt="Average summer and winter temperatures with predictions" class="static-plot">
@@ -84,7 +84,7 @@
 
   <h2>Research Question :By what year will San Diego's winter mean exceed its historical summer mean?</h2>
   <img src="figures/fig6_monthly_heatmap.png" class="static-plot">
-  <img src="figures/fig2_winter_summer_trends.png" class="static-plot">
+  <img src="figures/fig2_winter_summer_trends.png" class="static-plot">-->
 
   <!-- ── PLOT 3 ───────────────────────────────────────────────────────────── -->
 <section class="plot-section">

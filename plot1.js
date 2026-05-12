@@ -1,3 +1,4 @@
+let allData1 = [];
 // ── 1. DIMENSIONS ──────────────────────────────────────────────
 const margin = { top: 40, right: 30, bottom: 50, left: 60 };
 const width  = 900 - margin.left - margin.right;
@@ -61,7 +62,7 @@ d3.csv("data/city_heat_stress.csv", d => ({
   anomaly:         +d.anomaly,
   anomaly_rolling: +d.anomaly_rolling
 })).then(data => {
-
+  allData1 = data;
   // ── 7. POPULATE DROPDOWN ─────────────────────────────────────
   const cities = [...new Set(data.map(d => d.city))].sort();
 
