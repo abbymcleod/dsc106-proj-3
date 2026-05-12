@@ -301,6 +301,121 @@ function drawAnomalyChart() {
         .attr('opacity', isActive ? 1 : 0.08)
         .text(city);
     });
+
+    // ── SCENARIO GAP ANNOTATION ───────────────────────────────────────────────
+linesGA.selectAll('.gap-annotation').remove();
+linesGA.selectAll('.gap-line').remove();
+
+if (selectedCityA) {
+  const s245 = getSeriesPoints(selectedCityA, 'ssp245');
+  const s585 = getSeriesPoints(selectedCityA, 'ssp585');
+
+  if (s245.length > 0 && s585.length > 0) {
+    const s245map = new Map(s245.map(d => [d.time.getTime(), d.wb_anomaly]));
+
+    // find the time point where the gap between ssp585 and ssp245 is largest
+    let maxGap = 0;
+    let maxTime = null;
+    let maxS245 = null;
+    let maxS585 = null;
+
+    s585.forEach(d => {
+      const s245val = s245map.get(d.time.getTime());
+      if (s245val == null) return;
+      const gap = d.wb_anomaly - s245val;
+      if (gap > maxGap) {
+        maxGap    = gap;
+        maxTime   = d.time;
+        maxS245   = s245val;
+        maxS585   = d.wb_anomaly;
+      }
+    });
+
+    if (maxTime && maxGap > 0) {
+      const x  = xScaleA(maxTime);
+      const y1 = yScaleA(maxS585);
+      const y2 = yScaleA(maxS245);
+      const mid = (y1 + y2) / 2;
+
+      // vertical bracket line between the two scenario values
+      linesGA.append('line')
+        .attr('class', 'gap-line')
+        .attr('x1', x).attr('x2', x)
+        .attr('y1', y1).attr('y2', y2)
+        .attr('stroke', '#555')
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '3,2');
+
+      // tick marks at top and bottom of bracket
+      linesGA.append('line')
+        .attr('class', 'gap-line')
+        .attr('x1', x - 5).attr('x2', x + 5)
+        .attr('y1', y1).attr('y2', y1)
+        .attr('stroke', '#555')
+        .attr('stroke-width', 1.5);
+
+      linesGA.append('line')
+        .attr('class', 'gap-line')
+        .attr('x1', x - 5).attr('x2', x + 5)
+        .attr('y1', y2).attr('y2', y2)
+        .attr('stroke', '#555')
+        .attr('stroke-width', 1.5);
+
+      // annotation box — flip left if near right edge
+      const boxWidth  = 200;
+      const flipLeft  = x + boxWidth + 20 > widthA;
+      const boxX      = flipLeft ? x - boxWidth - 14 : x + 14;
+
+      linesGA.append('rect')
+        .attr('class', 'gap-annotation')
+        .attr('x', boxX)
+        .attr('y', mid - 34)
+        .attr('width', boxWidth)
+        .attr('height', 68)
+        .attr('rx', 4)
+        .attr('fill', 'white')
+        .attr('stroke', '#ccc')
+        .attr('stroke-width', 0.5);
+
+      linesGA.append('text')
+        .attr('class', 'gap-annotation')
+        .attr('x', boxX + 10)
+        .attr('y', mid - 14)
+        .attr('font-size', '11px')
+        .attr('font-weight', '600')
+        .attr('font-family', 'sans-serif')
+        .attr('fill', '#333')
+        .text(`Max scenario gap: +${maxGap.toFixed(2)}°C`);
+
+      linesGA.append('text')
+        .attr('class', 'gap-annotation')
+        .attr('x', boxX + 10)
+        .attr('y', mid + 4)
+        .attr('font-size', '10px')
+        .attr('font-family', 'sans-serif')
+        .attr('fill', '#555')
+        .text('Reducing fossil fuels could');
+
+      linesGA.append('text')
+        .attr('class', 'gap-annotation')
+        .attr('x', boxX + 10)
+        .attr('y', mid + 18)
+        .attr('font-size', '10px')
+        .attr('font-family', 'sans-serif')
+        .attr('fill', '#555')
+        .text(`avoid this much warming`);
+
+      linesGA.append('text')
+        .attr('class', 'gap-annotation')
+        .attr('x', boxX + 10)
+        .attr('y', mid + 32)
+        .attr('font-size', '10px')
+        .attr('font-family', 'sans-serif')
+        .attr('fill', '#888')
+        .text(`in ${d3.timeFormat('%Y')(maxTime)}`);
+    }
+  }
+}
   
     // ── TOOLTIP OVERLAY ───────────────────────────────────────────────────────
     svgA.selectAll('.overlay-a').remove();
