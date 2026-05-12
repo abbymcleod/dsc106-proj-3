@@ -19,6 +19,26 @@ svgA.append('defs').append('clipPath')
 
 const linesGA = svgA.append('g').attr('clip-path', 'url(#clip-a)');
 
+const tooltipG = svgA.append('g')
+  .attr('class', 'tooltip-g')
+  .style('display', 'none');
+
+const tooltipRect = tooltipG.append('rect')
+  .attr('rx', 4)
+  .attr('ry', 4)
+  .attr('fill', 'white')
+  .attr('stroke', '#ddd')
+  .attr('stroke-width', 0.5);
+
+const tooltipLines = [0, 1, 2, 3].map(i =>
+  tooltipG.append('text')
+    .attr('font-size', '12px')
+    .attr('font-family', 'sans-serif')
+    .attr('fill', '#333')
+    .attr('x', 10)
+    .attr('y', 20 + i * 18)
+);
+
 // ── SCALES ───────────────────────────────────────────────────────────────────
 const xScaleA = d3.scaleTime().range([0, widthA]);
 const yScaleA = d3.scaleLinear().range([heightA, 0]);
@@ -283,67 +303,72 @@ function drawAnomalyChart() {
     // ── TOOLTIP OVERLAY ───────────────────────────────────────────────────────
     svgA.selectAll('.overlay-a').remove();
     svgA.append('rect')
-      .attr('class', 'overlay-a')
-      .attr('width', widthA)
-      .attr('height', heightA)
-      .attr('fill', 'none')
-      .attr('pointer-events', 'all')
-      .on('mousemove', function(event) {
-        const [mx] = d3.pointer(event, this);
+    .attr('class', 'overlay-a')
+    .attr('width', widthA)
+    .attr('height', heightA)
+    .attr('fill', 'none')
+    .attr('pointer-events', 'all')
+    .on('mousemove', function(event) {
+        const [mx, my] = d3.pointer(event, this);
         const hoveredTime = xScaleA.invert(mx);
         const targetCity = selectedCityA || cities[0];
         const hoveredYear = hoveredTime.getFullYear();
-    
-        // pick the right scenario's series as reference based on year
+
         const refScenario = hoveredYear <= 2014 ? 'historical' : 'ssp585';
         const refSeries = getSeriesPoints(targetCity, refScenario);
         if (refSeries.length === 0) return;
-    
+
         const bisect = d3.bisector(d => d.time).left;
         const idx = Math.min(bisect(refSeries, hoveredTime, 1), refSeries.length - 1);
         const nearest = refSeries[idx];
         if (!nearest) return;
-    
+
         const getAnomaly = scenario => {
-          const pts = getSeriesPoints(targetCity, scenario);
-          if (pts.length === 0) return null;
-          const i = Math.min(bisect(pts, nearest.time, 1), pts.length - 1);
-          return pts[i] ? pts[i].wb_anomaly : null;
+        const pts = getSeriesPoints(targetCity, scenario);
+        if (pts.length === 0) return null;
+        const i = Math.min(bisect(pts, nearest.time, 1), pts.length - 1);
+        return pts[i] ? pts[i].wb_anomaly : null;
         };
-    
+
         const hist = getAnomaly('historical');
         const s245 = getAnomaly('ssp245');
         const s585 = getAnomaly('ssp585');
-        const yr = d3.timeFormat('%Y')(nearest.time);
-        const fmt = v => v != null ? (v >= 0 ? '+' : '') + v.toFixed(2) + '°C' : '—';
-    
-        // tooltip dimensions for smart positioning
-        const tooltipWidth  = 180;
-        const tooltipHeight = 90;
-        const pageWidth     = window.innerWidth;
-        const pageHeight    = window.innerHeight;
-    
-        // flip left if near right edge, flip up if near bottom edge
-        const left = event.pageX + 14 + tooltipWidth > pageWidth
-          ? event.pageX - tooltipWidth - 10
-          : event.pageX + 14;
-    
-        const top = event.pageY + tooltipHeight > pageHeight
-          ? event.pageY - tooltipHeight - 10
-          : event.pageY - 28;
-    
-        tooltipA
-          .style('opacity', 1)
-          .style('left', left + 'px')
-          .style('top',  top  + 'px')
-          .html(`
-            <strong>${targetCity} — ${yr}</strong><br>
-            Historical: ${fmt(hist)}<br>
-            SSP2-4.5: ${fmt(s245)}<br>
-            SSP5-8.5: ${fmt(s585)}
-          `);
-      })
-      .on('mouseleave', () => tooltipA.style('opacity', 0));
+        const yr   = d3.timeFormat('%Y')(nearest.time);
+        const fmt  = v => v != null ? (v >= 0 ? '+' : '') + v.toFixed(2) + '°C' : '—';
+
+        // update text lines
+        const lines = [
+        `${targetCity} — ${yr}`,
+        `Historical: ${fmt(hist)}`,
+        `SSP2-4.5:   ${fmt(s245)}`,
+        `SSP5-8.5:   ${fmt(s585)}`
+        ];
+
+        tooltipLines.forEach((t, i) => {
+        t.text(lines[i])
+        .attr('font-weight', i === 0 ? '600' : '400');
+        });
+
+        // size the box to fit text
+        const boxWidth  = 170;
+        const boxHeight = 90;
+
+        tooltipRect
+        .attr('width',  boxWidth)
+        .attr('height', boxHeight);
+
+        // position: follow cursor, flip if near edges
+        const flipX = mx + boxWidth + 20 > widthA;
+        const flipY = my - boxHeight - 10 < 0;
+
+        const tx = flipX ? mx - boxWidth - 10 : mx + 14;
+        const ty = flipY ? my + 10 : my - boxHeight - 10;
+
+        tooltipG
+        .attr('transform', `translate(${tx},${ty})`)
+        .style('display', null);
+    })
+    .on('mouseleave', () => tooltipG.style('display', 'none'));
   }
 
 // ── LOAD DATA ─────────────────────────────────────────────────────────────────
