@@ -139,15 +139,20 @@ function drawAnomalyChart() {
 const allTimes = allDataA.map(d => d.time);
 xScaleA.domain(d3.extent(allTimes));
 
-// y domain — only this, remove everything else
-const visibleAnomalies = (selectedCityA
-  ? allDataA.filter(d => d.city === selectedCityA)
-  : allDataA
-).map(d => d.wb_anomaly).filter(v => v != null && !isNaN(v) && Math.abs(v) < 50);
+// y domain using smoothed series only
+const scenarioKeys = ['historical', 'ssp245', 'ssp585'];
+const citiesToCheck = selectedCityA
+  ? [selectedCityA]
+  : [...new Set(allDataA.map(d => d.city))];
 
-const yMin = d3.min(visibleAnomalies);
-const yMax = d3.max(visibleAnomalies);
-const yPad = (yMax - yMin) * 0.1;
+const smoothedVals = citiesToCheck
+  .flatMap(city => scenarioKeys.flatMap(s => getSeriesPoints(city, s)))
+  .map(d => d.wb_anomaly)
+  .filter(v => v != null && !isNaN(v));
+
+const yMin = d3.min(smoothedVals);
+const yMax = d3.max(smoothedVals);
+const yPad = (yMax - yMin) * 0.05;  // 5% padding — tighter than before
 
 yScaleA.domain([yMin - yPad, yMax + yPad]);
 
