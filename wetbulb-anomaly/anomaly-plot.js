@@ -178,15 +178,16 @@ function drawAnomalyChart() {
       .attr('stroke-width', 1)
       .attr('stroke-dasharray', '3,3');
   
-    linesGA.selectAll('.zero-label').remove();
-    linesGA.append('text')
-      .attr('class', 'zero-label')
-      .attr('x', 4)
-      .attr('y', yScaleA(0) - 4)
-      .attr('font-size', '10px')
-      .attr('font-family', 'sans-serif')
-      .attr('fill', '#aaa')
-      .text('pre-industrial baseline');
+      linesGA.selectAll('.zero-label').remove();
+      linesGA.append('text')
+        .attr('class', 'zero-label')
+        .attr('x', widthA - 4)          // ← right side
+        .attr('y', yScaleA(0) - 4)
+        .attr('text-anchor', 'end')     // ← right aligned
+        .attr('font-size', '10px')
+        .attr('font-family', 'sans-serif')
+        .attr('fill', '#aaa')
+        .text('pre-industrial baseline');
   
     // ── 1.5°C PARIS TARGET LINE ───────────────────────────────────────────────
     linesGA.selectAll('.paris-line').remove();
@@ -291,35 +292,50 @@ function drawAnomalyChart() {
         const [mx] = d3.pointer(event, this);
         const hoveredTime = xScaleA.invert(mx);
         const targetCity = selectedCityA || cities[0];
-  
-        const refSeries = getSeriesPoints(targetCity, 'historical').length > 0
-          ? getSeriesPoints(targetCity, 'historical')
-          : getSeriesPoints(targetCity, 'ssp245');
-  
+        const hoveredYear = hoveredTime.getFullYear();
+    
+        // pick the right scenario's series as reference based on year
+        const refScenario = hoveredYear <= 2014 ? 'historical' : 'ssp585';
+        const refSeries = getSeriesPoints(targetCity, refScenario);
         if (refSeries.length === 0) return;
-  
+    
         const bisect = d3.bisector(d => d.time).left;
         const idx = Math.min(bisect(refSeries, hoveredTime, 1), refSeries.length - 1);
         const nearest = refSeries[idx];
         if (!nearest) return;
-  
+    
         const getAnomaly = scenario => {
           const pts = getSeriesPoints(targetCity, scenario);
           if (pts.length === 0) return null;
           const i = Math.min(bisect(pts, nearest.time, 1), pts.length - 1);
           return pts[i] ? pts[i].wb_anomaly : null;
         };
-  
+    
         const hist = getAnomaly('historical');
         const s245 = getAnomaly('ssp245');
         const s585 = getAnomaly('ssp585');
         const yr = d3.timeFormat('%Y')(nearest.time);
         const fmt = v => v != null ? (v >= 0 ? '+' : '') + v.toFixed(2) + '°C' : '—';
-  
+    
+        // tooltip dimensions for smart positioning
+        const tooltipWidth  = 180;
+        const tooltipHeight = 90;
+        const pageWidth     = window.innerWidth;
+        const pageHeight    = window.innerHeight;
+    
+        // flip left if near right edge, flip up if near bottom edge
+        const left = event.pageX + 14 + tooltipWidth > pageWidth
+          ? event.pageX - tooltipWidth - 10
+          : event.pageX + 14;
+    
+        const top = event.pageY + tooltipHeight > pageHeight
+          ? event.pageY - tooltipHeight - 10
+          : event.pageY - 28;
+    
         tooltipA
           .style('opacity', 1)
-          .style('left', (event.pageX + 14) + 'px')
-          .style('top', (event.pageY - 28) + 'px')
+          .style('left', left + 'px')
+          .style('top',  top  + 'px')
           .html(`
             <strong>${targetCity} — ${yr}</strong><br>
             Historical: ${fmt(hist)}<br>

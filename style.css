@@ -114,3 +114,7 @@ img.static-plot {
     font-family: sans-serif;
     align-items: center;
   }
+
+  .tooltip {
+    pointer-events: none;
+  }
