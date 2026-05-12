@@ -197,16 +197,16 @@ yScaleA.domain([yMin - yPad, yMax + yPad]);
     .attr('stroke-width', 1.5)
     .attr('stroke-dasharray', '7,4');
 
-  linesGA.selectAll('.paris-label').remove();
-  linesGA.append('text')
-    .attr('class', 'paris-label')
-    .attr('x', widthA - 4)
-    .attr('y', yScaleA(1.5) - 5)
-    .attr('text-anchor', 'end')
-    .attr('font-size', '11px')
-    .attr('font-family', 'sans-serif')
-    .attr('fill', '#378ADD')
-    .text('1.5°C Paris Agreement target');
+    linesGA.selectAll('.paris-label').remove();
+    linesGA.append('text')
+      .attr('class', 'paris-label')
+      .attr('x', 4)                        // ← left side instead of right
+      .attr('y', yScaleA(1.5) - 6)
+      .attr('text-anchor', 'start')        // ← start instead of end
+      .attr('font-size', '11px')
+      .attr('font-family', 'sans-serif')
+      .attr('fill', '#378ADD')
+      .text('1.5°C Paris Agreement target');
 
   // ── UNCERTAINTY BANDS (ssp245–ssp585 range) ───────────────────────────────
   linesGA.selectAll('.band')
