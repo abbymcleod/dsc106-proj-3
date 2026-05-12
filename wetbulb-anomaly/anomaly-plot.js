@@ -301,120 +301,6 @@ function drawAnomalyChart() {
         .attr('opacity', isActive ? 1 : 0.08)
         .text(city);
     });
-
-    // ── SCENARIO GAP ANNOTATION ───────────────────────────────────────────────
-linesGA.selectAll('.gap-annotation').remove();
-linesGA.selectAll('.gap-line').remove();
-
-if (selectedCityA) {
-  const s245 = getSeriesPoints(selectedCityA, 'ssp245');
-  const s585 = getSeriesPoints(selectedCityA, 'ssp585');
-
-  if (s245.length > 0 && s585.length > 0) {
-    const s245map = new Map(s245.map(d => [d.time.getTime(), d.wb_anomaly]));
-
-    // find the time point where the gap between ssp585 and ssp245 is largest
-    let maxGap = 0;
-    let maxTime = null;
-    let maxS245 = null;
-    let maxS585 = null;
-
-    s585.forEach(d => {
-      const s245val = s245map.get(d.time.getTime());
-      if (s245val == null) return;
-      const gap = d.wb_anomaly - s245val;
-      if (gap > maxGap) {
-        maxGap    = gap;
-        maxTime   = d.time;
-        maxS245   = s245val;
-        maxS585   = d.wb_anomaly;
-      }
-    });
-
-    if (maxTime && maxGap > 0) {
-      const x  = xScaleA(maxTime);
-      const y1 = yScaleA(maxS585);
-      const y2 = yScaleA(maxS245);
-      const mid = (y1 + y2) / 2;
-
-      // vertical bracket line between the two scenario values
-      linesGA.append('line')
-        .attr('class', 'gap-line')
-        .attr('x1', x).attr('x2', x)
-        .attr('y1', y1).attr('y2', y2)
-        .attr('stroke', '#555')
-        .attr('stroke-width', 1.5)
-        .attr('stroke-dasharray', '3,2');
-
-      // tick marks at top and bottom of bracket
-      linesGA.append('line')
-        .attr('class', 'gap-line')
-        .attr('x1', x - 5).attr('x2', x + 5)
-        .attr('y1', y1).attr('y2', y1)
-        .attr('stroke', '#555')
-        .attr('stroke-width', 1.5);
-
-      linesGA.append('line')
-        .attr('class', 'gap-line')
-        .attr('x1', x - 5).attr('x2', x + 5)
-        .attr('y1', y2).attr('y2', y2)
-        .attr('stroke', '#555')
-        .attr('stroke-width', 1.5);
-
-      // annotation box — flip left if near right edge
-      const boxWidth  = 200;
-      const boxX      =  x + 14;
-
-      linesGA.append('rect')
-        .attr('class', 'gap-annotation')
-        .attr('x', boxX)
-        .attr('y', mid - 34)
-        .attr('width', boxWidth)
-        .attr('height', 68)
-        .attr('rx', 4)
-        .attr('fill', 'white')
-        .attr('stroke', '#ccc')
-        .attr('stroke-width', 0.5);
-
-      linesGA.append('text')
-        .attr('class', 'gap-annotation')
-        .attr('x', boxX + 10)
-        .attr('y', mid - 14)
-        .attr('font-size', '11px')
-        .attr('font-weight', '600')
-        .attr('font-family', 'sans-serif')
-        .attr('fill', '#333')
-        .text(`Max scenario gap: +${maxGap.toFixed(2)}°C`);
-
-      linesGA.append('text')
-        .attr('class', 'gap-annotation')
-        .attr('x', boxX + 10)
-        .attr('y', mid + 4)
-        .attr('font-size', '10px')
-        .attr('font-family', 'sans-serif')
-        .attr('fill', '#555')
-        .text('Reducing fossil fuels could');
-
-      linesGA.append('text')
-        .attr('class', 'gap-annotation')
-        .attr('x', boxX + 10)
-        .attr('y', mid + 18)
-        .attr('font-size', '10px')
-        .attr('font-family', 'sans-serif')
-        .attr('fill', '#555')
-        .text(`avoid this much warming`);
-
-      linesGA.append('text')
-        .attr('class', 'gap-annotation')
-        .attr('x', boxX + 10)
-        .attr('y', mid + 32)
-        .attr('font-size', '10px')
-        .attr('font-family', 'sans-serif')
-        .attr('fill', '#888')
-        .text(`in ${d3.timeFormat('%Y')(maxTime)}`);
-    }
-  }
-}
   
     // ── TOOLTIP OVERLAY ───────────────────────────────────────────────────────
     svgA.selectAll('.overlay-a').remove();
@@ -487,6 +373,107 @@ if (selectedCityA) {
     .on('mouseleave', () => tooltipG.style('display', 'none'));
   }
 
+  function getCityFacts(city) {
+    const s245 = getSeriesPoints(city, 'ssp245');
+    const s585 = getSeriesPoints(city, 'ssp585');
+    const hist = getSeriesPoints(city, 'historical');
+  
+    const facts = [];
+  
+    // ── Fact 1: max scenario gap ──────────────────────────────────────────────
+    if (s245.length > 0 && s585.length > 0) {
+      const s245map = new Map(s245.map(d => [d.time.getTime(), d.wb_anomaly]));
+      let maxGap = 0;
+      let maxYear = null;
+  
+      s585.forEach(d => {
+        const v = s245map.get(d.time.getTime());
+        if (v == null) return;
+        const gap = d.wb_anomaly - v;
+        if (gap > maxGap) { maxGap = gap; maxYear = d.time; }
+      });
+  
+      if (maxYear) {
+        facts.push({
+          label: 'Emissions impact',
+          text: `Reducing fossil fuels could avoid up to <strong>+${maxGap.toFixed(2)}°C</strong> of wet-bulb warming in ${city} by <strong>${d3.timeFormat('%Y')(maxYear)}</strong> — the difference between the SSP2-4.5 and SSP5-8.5 scenarios.`
+        });
+      }
+    }
+  
+    // ── Fact 2: year Paris target crossed under ssp585 ────────────────────────
+    if (s585.length > 0) {
+      const crossed = s585.find(d => d.wb_anomaly >= 1.5);
+      if (crossed) {
+        facts.push({
+          label: 'Paris target crossed',
+          text: `Under worst-case emissions (SSP5-8.5), ${city} is projected to exceed the <strong>1.5°C Paris Agreement target</strong> for wet-bulb heat by <strong>${d3.timeFormat('%Y')(crossed.time)}</strong>.`
+        });
+      } else {
+        facts.push({
+          label: 'Paris target',
+          text: `Under worst-case emissions (SSP5-8.5), ${city} does not exceed the 1.5°C Paris Agreement target for wet-bulb heat by 2100.`
+        });
+      }
+    }
+  
+    // ── Fact 3: total warming by 2100 under each scenario ────────────────────
+    if (s245.length > 0 && s585.length > 0) {
+      const last245 = s245[s245.length - 1].wb_anomaly;
+      const last585 = s585[s585.length - 1].wb_anomaly;
+      facts.push({
+        label: 'Warming by 2100',
+        text: `By 2100, ${city}'s wet-bulb temperature is projected to be <strong>+${last245.toFixed(2)}°C</strong> above pre-industrial under moderate emissions, and <strong>+${last585.toFixed(2)}°C</strong> under worst-case emissions.`
+      });
+    }
+  
+    // ── Fact 4: warming already observed ─────────────────────────────────────
+    if (hist.length > 0) {
+      const lastHist = hist[hist.length - 1].wb_anomaly;
+      facts.push({
+        label: 'Warming already observed',
+        text: `By the end of the historical record (2014), ${city} had already warmed <strong>+${lastHist.toFixed(2)}°C</strong> above its pre-industrial wet-bulb baseline.`
+      });
+    }
+  
+    return facts;
+  }
+
+  function updateFactPanel(city) {
+    const container = document.getElementById('fact-buttons');
+    const panel     = document.getElementById('fact-panel');
+  
+    // clear old buttons
+    container.innerHTML = '';
+    panel.style.display = 'none';
+    panel.innerHTML     = '';
+  
+    if (!city) return;
+  
+    const facts = getCityFacts(city);
+  
+    facts.forEach((fact, i) => {
+      const btn = document.createElement('button');
+      btn.className   = 'fact-btn';
+      btn.textContent = fact.label;
+  
+      btn.addEventListener('click', () => {
+        // toggle off if already active
+        if (btn.classList.contains('active')) {
+          btn.classList.remove('active');
+          panel.style.display = 'none';
+          return;
+        }
+        document.querySelectorAll('.fact-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panel.innerHTML     = fact.text;
+        panel.style.display = 'block';
+      });
+  
+      container.appendChild(btn);
+    });
+  }
+
 // ── LOAD DATA ─────────────────────────────────────────────────────────────────
 d3.csv('../data/city_wet_bulb.csv', d => ({
   city:        d.city,
@@ -517,6 +504,7 @@ d3.csv('../data/city_wet_bulb.csv', d => ({
           selectedCityA = city;
           d3.selectAll('.city-btn-a').classed('active', false);
           d3.select(this).classed('active', true);
+          updateFactPanel(city);
         }
         drawAnomalyChart();
       });

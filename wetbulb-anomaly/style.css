@@ -34,3 +34,43 @@
   .uncertainty-band {
     fill: rgba(196, 116, 10, 0.15);
   }
+
+  #fact-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    min-height: 36px;
+  }
+  
+  .fact-btn {
+    padding: 5px 14px;
+    font-size: 12px;
+    font-family: sans-serif;
+    border: 1px solid #c4740a;
+    border-radius: 20px;
+    background: transparent;
+    color: #c4740a;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  
+  .fact-btn:hover  { background: #fdf3e7; }
+  .fact-btn.active { background: #c4740a; color: #fff; }
+  
+  #fact-panel {
+    background: #fdf3e7;
+    border-left: 3px solid #c4740a;
+    border-radius: 4px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-family: sans-serif;
+    color: #333;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    max-width: 700px;
+  }
+  
+  #fact-panel strong {
+    color: #c4740a;
+  }
