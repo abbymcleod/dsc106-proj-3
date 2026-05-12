@@ -1,5 +1,4 @@
 // map-plot.js
-// TODO: add more cities?
 const US_ATLAS = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 const MAP_W = 960, MAP_H = 600;
 
@@ -16,8 +15,30 @@ const colorScale = d3.scaleThreshold()
 
 const binLabels = ["< 1°C", "1–2°C", "2–3°C", "3–5°C", "> 5°C"];
 
+const ANNOTATIONS = [
+    {
+        city: "Anchorage",
+        text: "Anchorage warms 2× faster than most U.S. cities — Arctic amplification in action.",
+        dx: 30, dy: -40,
+    },
+    {
+        city: "Las Vegas",  // anchor to Las Vegas as geographic center of Southwest cluster
+        text: "Desert Southwest cities warm least in winter, but start from already warm baselines.",
+        dx: 50, dy: -20,
+        noLine: true,       // regional annotation, no leader line
+    },
+    {
+    city: "Washington DC",
+    text: "East Coast cities warm 2–3× more than West Coast cities under the same scenario.",
+    dx: -100, dy: -120,
+    noLine: true,
+},
+];
+
 let warmingData, seasonalData;
 let activeScenario = "ssp245";
+let selectedCity = null;
+let hoverCity = null;
 
 const projection = d3.geoAlbersUsa()
     .scale(1300)
@@ -29,7 +50,7 @@ const mapContainer = d3.select("body").append("div").attr("id", "map-section");
 
 mapContainer.append("h1").text("Projected Winter Warming Across U.S. Cities");
 mapContainer.append("p").attr("class", "subtitle")
-    .text("Dot color shows projected winter warming (2070–2100 vs 1980–2014 baseline). Click a city to see its temperature trends.");
+    .text("Dot color shows projected winter warming (2070–2100 vs 1980–2014 baseline). Hover a city to preview, click to pin.");
 
 // Scenario toggle
 const toggleDiv = mapContainer.append("div").attr("id", "map-controls");
@@ -45,70 +66,40 @@ MAP_SCENARIOS.forEach(s => {
             scenBtns.selectAll("button").classed("active", false);
             d3.select(this).classed("active", true);
             updateDots();
-            if (selectedCity) showTooltip(selectedCity);
+            const displayed = selectedCity || hoverCity;
+            if (displayed) showTooltip(displayed);
         });
 });
 
-// Season toggle
-let activeSeason = "winter";
-const seasonDiv = mapContainer.append("div").attr("id", "season-controls").style("margin-top", "8px");
-seasonDiv.append("label").attr("class", "group-label").text("Season");
-const seasonBtns = seasonDiv.append("div").attr("class", "btn-group");
-[{ id: "winter", label: "Winter (DJF)" }, { id: "summer", label: "Summer (JJA)" }].forEach(s => {
-    seasonBtns.append("button")
-        .attr("class", s.id === activeSeason ? "active" : "")
-        .style("--btn-color", "#555")
-        .text(s.label)
-        .on("click", function() {
-            activeSeason = s.id;
-            seasonBtns.selectAll("button").classed("active", false);
-            d3.select(this).classed("active", true);
-            updateLegend();
-            updateDots();
-            if (selectedCity) showTooltip(selectedCity);
-        });
-});
-
-// Map SVG
+// Map SVG + flex wrapper
 const mapFlex = mapContainer.append("div").attr("id", "map-flex");
-
-const svg = mapFlex.append("svg")
-    .attr("width", MAP_W)
-    .attr("height", MAP_H);
-
-
+const svg = mapFlex.append("svg").attr("width", MAP_W).attr("height", MAP_H);
 const statesG = svg.append("g").attr("class", "states");
 const citiesG = svg.append("g").attr("class", "cities");
+const annotationsG = svg.append("g").attr("class", "annotations");
 
 // Legend
 function updateLegend() {
-    const seasonLabel = activeSeason === "winter" ? "Winter" : "Summer";
     d3.select("#map-legend").selectAll("*").remove();
     const legendDiv = d3.select("#map-legend");
-    legendDiv.append("span").attr("class", "group-label")
-        .text(`${seasonLabel} warming by 2100:  `);
+    legendDiv.append("span").attr("class", "group-label").text("Winter warming by 2100:  ");
     colorScale.range().forEach((color, i) => {
         const item = legendDiv.append("span").attr("class", "legend-item");
         item.append("span")
             .style("display", "inline-block")
-            .style("width", "40px")
-            .style("height", "12px")
-            .style("background", color)
-            .style("border", "1px solid #ccc")
-            .style("vertical-align", "middle")
-            .style("margin-right", "3px");
+            .style("width", "40px").style("height", "12px")
+            .style("background", color).style("border", "1px solid #ccc")
+            .style("vertical-align", "middle").style("margin-right", "3px");
         item.append("span").text(binLabels[i] + "  ");
     });
 }
 mapContainer.append("div").attr("id", "map-legend");
 updateLegend();
 
-// Tooltip container
+// Tooltip
 const tooltip = mapFlex.append("div").attr("id", "map-tooltip");
 const ttTitle = tooltip.append("h3");
 const ttSvg = tooltip.append("svg");
-
-let selectedCity = null;
 
 // ── Load data ──────────────────────────────────────────────────────────────
 Promise.all([
@@ -148,25 +139,66 @@ Promise.all([
         .data(cities)
         .join("circle")
         .attr("class", "city-dot")
-        .attr("cx", d => {
-            const p = projection([d.lon, d.lat]);
-            return p ? p[0] : null;
-        })
-        .attr("cy", d => {
-            const p = projection([d.lon, d.lat]);
-            return p ? p[1] : null;
-        })
+        .attr("cx", d => { const p = projection([d.lon, d.lat]); return p ? p[0] : null; })
+        .attr("cy", d => { const p = projection([d.lon, d.lat]); return p ? p[1] : null; })
         .attr("r", 7)
-        // .attr("stroke", "#333")
-        // .attr("stroke-width", 1)
         .attr("cursor", "pointer")
-        .on("click", (event, d) => {
-            selectedCity = d.city;
-            citiesG.selectAll("circle").attr("r", 7);
+        .on("mouseover", (event, d) => {
+            hoverCity = d.city;
+            if (!selectedCity) showTooltip(d.city);
             d3.select(event.currentTarget).attr("r", 10);
-            showTooltip(d.city);
+        })
+        .on("mouseout", (event, d) => {
+            hoverCity = null;
+            if (!selectedCity) tooltip.style("display", "none");
+            if (selectedCity !== d.city) d3.select(event.currentTarget).attr("r", 7);
+        })
+        .on("click", (event, d) => {
+            // If clicking the already-selected city, deselect it
+            if (selectedCity === d.city) {
+                selectedCity = null;
+                tooltip.style("display", "none");
+                citiesG.selectAll("circle").attr("r", 7);
+            } else {
+                selectedCity = d.city;
+                citiesG.selectAll("circle").attr("r", d2 => d2.city === selectedCity ? 10 : 7);
+                showTooltip(d.city);
+            }
         })
         .call(sel => updateDots(sel));
+
+    // Draw annotations
+    ANNOTATIONS.forEach(ann => {
+    const cityRow = cities.find(c => c.city === ann.city);
+    if (!cityRow) return;
+    const p = projection([cityRow.lon, cityRow.lat]);
+    if (!p) return;
+
+    const ag = annotationsG.append("g").attr("class", "annotation");
+
+    if (!ann.noLine) {
+        ag.append("line")
+            .attr("x1", p[0]).attr("y1", p[1])
+            .attr("x2", p[0] + ann.dx * 0.8).attr("y2", p[1] + ann.dy * 0.8)
+            .attr("stroke", "#555").attr("stroke-width", 1)
+            .attr("stroke-dasharray", "2,2");
+    }
+
+    const fo = ag.append("foreignObject")
+        .attr("x", p[0] + ann.dx)
+        .attr("y", p[1] + ann.dy - 10)
+        .attr("width", 160).attr("height", 70);
+
+    fo.append("xhtml:div")
+        .style("font-size", "11px")
+        .style("line-height", "1.3")
+        .style("color", "#333")
+        .style("background", "rgba(255,255,255,0.85)")
+        .style("padding", "4px 6px")
+        .style("border-radius", "3px")
+        .style("border", "1px solid #ddd")
+        .text(ann.text);
+});
 });
 
 // ── Update dot colors ──────────────────────────────────────────────────────
@@ -176,32 +208,26 @@ function updateDots(sel) {
         .attr("fill", d => {
             const row = warmingData.find(w => w.city === d.city && w.scenario === activeScenario);
             if (!row) return "#ccc";
-            const val = activeSeason === "winter" ? row.winter_warming : row.summer_warming;
-            return colorScale(val);
+            return colorScale(row.winter_warming);
         });
 }
 
 // ── Tooltip mini chart ─────────────────────────────────────────────────────
 function showTooltip(city) {
-    const ttMargin = { top: 16, right: 20, bottom: 28, left: 44 };
-    const ttW = 340, ttH = 180;
+    const ttMargin = { top: 40, right: 20, bottom: 28, left: 44 };
+    const ttW = 340, ttH = 200;
     const ttInnerW = ttW - ttMargin.left - ttMargin.right;
     const ttInnerH = ttH - ttMargin.top - ttMargin.bottom;
 
-    const cityData = seasonalData.filter(d => d.city === city && d.season === activeSeason);
     const activeScenarioObj = MAP_SCENARIOS.find(s => s.id === activeScenario);
-    const seasonLabel = activeSeason === "winter" ? "Winter (DJF)" : "Summer (JJA)";
 
-    ttTitle.text(`${city} — ${activeScenarioObj?.label}`);
+    // Use all scenarios + historical for y-domain so axis doesn't jump when toggling
+    const cityData = seasonalData.filter(d => d.city === city && d.season === "winter");
+
+    ttTitle.text(`${city} — Winter (DJF)`);
 
     ttSvg.attr("width", ttW).attr("height", ttH).selectAll("*").remove();
     const g = ttSvg.append("g").attr("transform", `translate(${ttMargin.left},${ttMargin.top})`);
-
-    // Season label above chart
-    g.append("text")
-        .attr("x", 0).attr("y", -4)
-        .attr("font-size", 10).attr("fill", "#666")
-        .text(seasonLabel);
 
     const x = d3.scaleLinear().domain([1850, 2100]).range([0, ttInnerW]);
     const y = d3.scaleLinear()
@@ -216,40 +242,70 @@ function showTooltip(city) {
     g.append("g")
         .call(d3.axisLeft(y).ticks(4).tickFormat(d => `${d}°C`));
 
+    // Historical divider
     g.append("line")
         .attr("x1", x(2015)).attr("x2", x(2015))
         .attr("y1", 0).attr("y2", ttInnerH)
         .attr("stroke", "#ccc").attr("stroke-dasharray", "3,2");
 
-    [
-        { scenario: "historical", color: "#999" },
-        { scenario: activeScenario, color: activeScenarioObj?.color },
-    ].forEach(({ scenario, color }) => {
-        const lineData = cityData.filter(d => d.scenario === scenario);
+    // Historical line — always drawn first, full opacity
+    const histData = cityData.filter(d => d.scenario === "historical");
+    if (histData.length) {
+        g.append("path")
+            .datum(histData)
+            .attr("fill", "none")
+            .attr("stroke", "#999")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line().x(d => x(d.year)).y(d => y(d.temp_c)).curve(d3.curveCatmullRom)(histData));
+    }
+
+    // Non-selected scenario lines — faint
+    MAP_SCENARIOS.filter(s => s.id !== activeScenario).forEach(s => {
+        const lineData = cityData.filter(d => d.scenario === s.id);
         if (!lineData.length) return;
         g.append("path")
             .datum(lineData)
             .attr("fill", "none")
-            .attr("stroke", color)
-            .attr("stroke-width", 1.5)
-            .attr("d", d3.line()
-                .x(d => x(d.year))
-                .y(d => y(d.temp_c))
-                .curve(d3.curveCatmullRom)(lineData));
+            .attr("stroke", s.color)
+            .attr("stroke-width", 1)
+            .attr("opacity", 0.3)
+            .attr("d", d3.line().x(d => x(d.year)).y(d => y(d.temp_c)).curve(d3.curveCatmullRom)(lineData));
     });
 
-    // Legend in top-right margin
-    [
-        { label: "Historical", color: "#999" },
-        { label: "Projected",  color: activeScenarioObj?.color },
-    ].forEach((item, i) => {
-        const legendG = g.append("g").attr("transform", `translate(${ttInnerW - 88}, ${-ttMargin.top - 1 + i * 16})`);
+    // Active scenario line — bold, drawn last so it's on top
+    const activeData = cityData.filter(d => d.scenario === activeScenario);
+    if (activeData.length) {
+        g.append("path")
+            .datum(activeData)
+            .attr("fill", "none")
+            .attr("stroke", activeScenarioObj?.color)
+            .attr("stroke-width", 2.5)
+            .attr("opacity", 1)
+            .attr("d", d3.line().x(d => x(d.year)).y(d => y(d.temp_c)).curve(d3.curveCatmullRom)(activeData));
+    }
+
+    // Legend in top-right margin — all four scenarios + historical
+    const legendItems = [
+        { label: "Historical", color: "#999", opacity: 1,   width: 1.5 },
+        ...MAP_SCENARIOS.map(s => ({
+            label: s.id === activeScenario ? s.label + " ★" : s.label,
+            color: s.color,
+            opacity: s.id === activeScenario ? 1 : 0.55,
+            width: s.id === activeScenario ? 2.5 : 1,
+        })),
+    ];
+
+    legendItems.forEach((item, i) => {
+        const legendG = g.append("g").attr("transform", `translate(0, ${-ttMargin.top + 4 + i * 14})`);
         legendG.append("line")
             .attr("x1", 0).attr("y1", 5).attr("x2", 16).attr("y2", 5)
-            .attr("stroke", item.color).attr("stroke-width", 1.5);
+            .attr("stroke", item.color)
+            .attr("stroke-width", item.width)
+            .attr("opacity", item.opacity);
         legendG.append("text")
             .attr("x", 20).attr("y", 9)
-            .attr("font-size", 11).attr("fill", "#333")
+            .attr("font-size", 9.5)
+            .attr("fill", item.opacity < 0.7 ? "#aaa" : "#333")
             .text(item.label);
     });
 
