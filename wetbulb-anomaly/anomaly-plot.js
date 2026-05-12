@@ -70,21 +70,35 @@ const areaBand = d3.area()
 
 // ── HELPER: average models for one city+scenario ───────────────────────────
 function getSeriesPoints(city, scenario) {
-  const subset = allDataA.filter(d =>
-    d.city === city && d.scenario === scenario
-  );
-  if (subset.length === 0) return [];
-
-  const byTime = d3.rollup(
-    subset,
-    v => d3.mean(v, d => d.wb_rolling),
-    d => d.time
-  );
-
-  return [...byTime.entries()]
-    .map(([time, wb_anomaly]) => ({ time, wb_anomaly }))
-    .sort((a, b) => a.time - b.time);
-}
+    const subset = allDataA
+      .filter(d => d.city === city && d.scenario === scenario)
+      .sort((a, b) => a.time - b.time);
+  
+    if (subset.length === 0) return [];
+  
+    // first average wb_anomaly across models at each time step
+    const byTime = d3.rollup(
+      subset,
+      v => d3.mean(v, d => d.wb_anomaly),
+      d => d.time
+    );
+  
+    const points = [...byTime.entries()]
+      .map(([time, wb_anomaly]) => ({ time, wb_anomaly }))
+      .sort((a, b) => a.time - b.time);
+  
+    // then apply a 12-point rolling mean to smooth the result
+    const window = 12;
+    return points.map((d, i) => {
+      const start = Math.max(0, i - Math.floor(window / 2));
+      const end   = Math.min(points.length, i + Math.ceil(window / 2));
+      const slice = points.slice(start, end);
+      return {
+        time:       d.time,
+        wb_anomaly: d3.mean(slice, p => p.wb_anomaly)
+      };
+    });
+  }
 
 // ── HELPER: build band data (paired ssp245 + ssp585 at same times) ─────────
 function getBandPoints(city) {
