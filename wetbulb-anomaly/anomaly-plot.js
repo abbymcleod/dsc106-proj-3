@@ -216,11 +216,14 @@ yScaleA.domain([yMin - yPad, yMax + yPad]);
       update => update,
       exit => exit.remove()
     )
-    .attr('d', city => areaBand(getBandPoints(city)))
-    .attr('opacity', city => {
-      if (!selectedCityA) return 0.15;
-      return city === selectedCityA ? 0.25 : 0.02;
-    });
+    .attr('d', d => {
+        const clipped = d.points.filter(p => {
+          const yr = p.time.getFullYear();
+          if (d.scenario === 'historical') return yr <= 2014;
+          return yr >= 2015;
+        });
+        return lineAnomaly(clipped);
+      });
 
   // ── SCENARIO LINES ────────────────────────────────────────────────────────
   const scenarioColor = {
