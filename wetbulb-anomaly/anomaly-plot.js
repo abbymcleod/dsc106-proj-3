@@ -363,8 +363,7 @@ if (selectedCityA) {
 
       // annotation box — flip left if near right edge
       const boxWidth  = 200;
-      const flipLeft  = x + boxWidth + 20 > widthA;
-      const boxX      = flipLeft ? x - boxWidth - 14 : x + 14;
+      const boxX      =  x + 14;
 
       linesGA.append('rect')
         .attr('class', 'gap-annotation')
