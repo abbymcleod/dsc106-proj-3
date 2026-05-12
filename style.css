@@ -82,3 +82,35 @@ img.static-plot {
     margin-top: 12px;
   }
 
+  #city-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .city-btn {
+    padding: 6px 16px;
+    font-size: 13px;
+    font-family: sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background: transparent;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  
+  .city-btn:hover { background: #ebe9e3; color: #1a1a1a; }
+  .city-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  
+  #legend-3 {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #666;
+    font-family: sans-serif;
+    align-items: center;
+  }

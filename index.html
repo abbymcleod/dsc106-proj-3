@@ -8,6 +8,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" defer></script>
   <script src="scenario-plot.js" defer></script>
   <script src="map-plot.js" defer></script>
+  <script src="plot3.js"></script>
 </head>
 <body>
   <nav>
@@ -84,6 +85,35 @@
   <h2>Research Question :By what year will San Diego's winter mean exceed its historical summer mean?</h2>
   <img src="figures/fig6_monthly_heatmap.png" class="static-plot">
   <img src="figures/fig2_winter_summer_trends.png" class="static-plot">
+
+  <!-- ── PLOT 3 ───────────────────────────────────────────────────────────── -->
+<section class="plot-section">
+  <h2>Plot 3: Wet-Bulb Temperature Projections by City and Scenario</h2>
+  <p class="plot-desc">
+    Wet-bulb temperature combines heat and humidity into a physiological stress index.
+    Select a city to bring it to the foreground. Dashed line marks the 28°C human
+    endurance threshold. Scenarios shown: historical (gray), SSP2-4.5 moderate
+    emissions (amber), SSP5-8.5 worst-case (red).
+  </p>
+
+  <div id="city-toggles"></div>
+
+  <div id="legend-3">
+    <span class="legend-item"><span class="swatch" style="background:#888;"></span>Historical</span>
+    <span class="legend-item"><span class="swatch" style="background:#c4740a;"></span>SSP2-4.5</span>
+    <span class="legend-item"><span class="swatch" style="background:#a32d2d;"></span>SSP5-8.5</span>
+    <span class="legend-item">
+      <span class="swatch" style="background:none; border-top: 2px dashed #e24b4a; width:24px; height:0; display:inline-block;"></span>
+      28°C danger threshold
+    </span>
+  </div>
+
+  <div id="chart-3"></div>
+  <p class="chart-note">
+    Wet-bulb temperature computed via Stull (2011) · 12-month rolling mean shown ·
+    Data: CMIP6 CESM2, MPI-ESM1-2-HR, GFDL-ESM4
+  </p>
+</section>
 
 </body>
 </html>
