@@ -141,10 +141,18 @@ function drawAnomalyChart() {
     .filter(v => v != null && !isNaN(v));
 
   xScaleA.domain(d3.extent(allTimes));
-  yScaleA.domain([
-    Math.min(d3.min(allAnomalies) - 0.3, -0.5),
-    d3.max(allAnomalies) + 0.5
-  ]);
+  const visibleData = selectedCityA
+    ? allDataA.filter(d => d.city === selectedCityA)
+    : allDataA;
+
+    const visibleAnomalies = visibleData
+        .map(d => d.wb_anomaly)
+        .filter(v => v != null && !isNaN(v));
+
+    yScaleA.domain([
+        d3.min(visibleAnomalies) - 0.3,
+        d3.max(visibleAnomalies) + 0.5
+    ]);
 
   // ── AXES ──────────────────────────────────────────────────────────────────
   xAxisGA.transition().duration(400)
