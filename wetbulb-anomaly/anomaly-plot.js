@@ -71,12 +71,18 @@ const areaBand = d3.area()
 // ── HELPER: average models for one city+scenario ───────────────────────────
 function getSeriesPoints(city, scenario) {
     const subset = allDataA
-      .filter(d => d.city === city && d.scenario === scenario)
+      .filter(d => {
+        if (d.city !== city || d.scenario !== scenario) return false;
+        // clip each scenario to its valid year range before smoothing
+        const yr = d.time.getFullYear();
+        if (scenario === 'historical') return yr <= 2014;
+        return yr >= 2015;
+      })
       .sort((a, b) => a.time - b.time);
   
     if (subset.length === 0) return [];
   
-    // first average wb_anomaly across models at each time step
+    // average wb_anomaly across models at each time step
     const byTime = d3.rollup(
       subset,
       v => d3.mean(v, d => d.wb_anomaly),
@@ -87,7 +93,7 @@ function getSeriesPoints(city, scenario) {
       .map(([time, wb_anomaly]) => ({ time, wb_anomaly }))
       .sort((a, b) => a.time - b.time);
   
-    // then apply a 12-point rolling mean to smooth the result
+    // apply 12-point rolling mean
     const window = 12;
     return points.map((d, i) => {
       const start = Math.max(0, i - Math.floor(window / 2));
