@@ -147,15 +147,16 @@ function drawAnomalyChart() {
       scenarioKeys.flatMap(scenario => getSeriesPoints(city, scenario))
     );
     
-    const allVisibleVals = allVisiblePoints
-      .map(d => d.wb_anomaly)
-      .filter(v => v != null && !isNaN(v));
-    
-    const yMin = d3.min(allVisibleVals);
-    const yMax = d3.max(allVisibleVals);
-    const yPad = (yMax - yMin) * 0.1;  // 10% padding top and bottom
-    
-    yScaleA.domain([yMin - yPad, yMax + yPad]);
+    const visibleAnomalies = (selectedCityA
+        ? allDataA.filter(d => d.city === selectedCityA)
+        : allDataA
+      ).map(d => d.wb_anomaly).filter(v => v != null && !isNaN(v) && Math.abs(v) < 50);
+      
+      const yMin = d3.min(visibleAnomalies);
+      const yMax = d3.max(visibleAnomalies);
+      const yPad = (yMax - yMin) * 0.1;
+      
+      yScaleA.domain([yMin - yPad, yMax + yPad]);
 
   // ── AXES ──────────────────────────────────────────────────────────────────
   xAxisGA.transition().duration(400)
