@@ -140,19 +140,22 @@ function drawAnomalyChart() {
     .map(d => d.wb_anomaly)
     .filter(v => v != null && !isNaN(v));
 
-  xScaleA.domain(d3.extent(allTimes));
-  const visibleData = selectedCityA
-    ? allDataA.filter(d => d.city === selectedCityA)
-    : allDataA;
-
-    const visibleAnomalies = visibleData
-        .map(d => d.wb_anomaly)
-        .filter(v => v != null && !isNaN(v));
-
-    yScaleA.domain([
-        d3.min(visibleAnomalies) - 0.3,
-        d3.max(visibleAnomalies) + 0.5
-    ]);
+    const scenarioKeys = ['historical', 'ssp245', 'ssp585'];
+    const citiesToCheck = selectedCityA ? [selectedCityA] : [...new Set(allDataA.map(d => d.city))];
+    
+    const allVisiblePoints = citiesToCheck.flatMap(city =>
+      scenarioKeys.flatMap(scenario => getSeriesPoints(city, scenario))
+    );
+    
+    const allVisibleVals = allVisiblePoints
+      .map(d => d.wb_anomaly)
+      .filter(v => v != null && !isNaN(v));
+    
+    const yMin = d3.min(allVisibleVals);
+    const yMax = d3.max(allVisibleVals);
+    const yPad = (yMax - yMin) * 0.1;  // 10% padding top and bottom
+    
+    yScaleA.domain([yMin - yPad, yMax + yPad]);
 
   // ── AXES ──────────────────────────────────────────────────────────────────
   xAxisGA.transition().duration(400)
