@@ -232,17 +232,19 @@ function drawAnomalyChart() {
   
     // ── UNCERTAINTY BANDS ─────────────────────────────────────────────────────
     linesGA.selectAll('.band')
-      .data(cities, d => d)
-      .join(
-        enter => enter.append('path').attr('class', 'band uncertainty-band'),
+        .data(cities, d => d)
+        .join(
+        enter => enter.append('path').attr('class', 'band'),
         update => update,
         exit => exit.remove()
-      )
-      .attr('opacity', city => {
-        if (!selectedCityA) return 0.15;
-        return city === selectedCityA ? 0.25 : 0.02;
-      })
-      .attr('d', city => areaBand(getBandPoints(city)));
+        )
+        .attr('fill', '#c4740a')
+        .attr('stroke', 'none')
+        .attr('opacity', city => {
+        if (!selectedCityA) return 0.12;
+        return city === selectedCityA ? 0.22 : 0.01;
+        })
+        .attr('d', city => areaBand(getBandPoints(city)));
   
     // ── SCENARIO LINES ────────────────────────────────────────────────────────
     const scenarioColor = {
