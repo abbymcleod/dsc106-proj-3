@@ -108,20 +108,20 @@ function getSeriesPoints(city, scenario) {
 
 // ── HELPER: build band data (paired ssp245 + ssp585 at same times) ─────────
 function getBandPoints(city) {
-  const s245 = getSeriesPoints(city, 'ssp245');
-  const s585 = getSeriesPoints(city, 'ssp585');
-
-  // index ssp585 by time string for fast lookup
-  const s585map = new Map(s585.map(d => [d.time.getTime(), d.wb_anomaly]));
-
-  return s245
-    .map(d => ({
-      time:   d.time,
-      ssp245: d.wb_anomaly,
-      ssp585: s585map.get(d.time.getTime()) ?? null
-    }))
-    .filter(d => d.ssp245 != null && d.ssp585 != null);
-}
+    const s245 = getSeriesPoints(city, 'ssp245');
+    const s585 = getSeriesPoints(city, 'ssp585');
+  
+    const s585map = new Map(s585.map(d => [d.time.getTime(), d.wb_anomaly]));
+  
+    return s245
+      .filter(d => d.time.getFullYear() >= 2015)
+      .map(d => ({
+        time:   d.time,
+        ssp245: d.wb_anomaly,
+        ssp585: s585map.get(d.time.getTime()) ?? null
+      }))
+      .filter(d => d.ssp245 != null && d.ssp585 != null);
+  }
 
 // ── DRAW ──────────────────────────────────────────────────────────────────────
 function drawAnomalyChart() {
@@ -221,10 +221,7 @@ function drawAnomalyChart() {
         if (!selectedCityA) return 0.15;
         return city === selectedCityA ? 0.25 : 0.02;
       })
-      .attr('d', city => areaBand(getBandPoints(city).filter(p => {
-        const yr = p.time.getFullYear();
-        return yr >= 2015;
-      })));
+      .attr('d', city => areaBand(getBandPoints(city)));
   
     // ── SCENARIO LINES ────────────────────────────────────────────────────────
     const scenarioColor = {
