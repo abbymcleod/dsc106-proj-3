@@ -1,118 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>City Heat Stress Dashboard</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" defer></script>
-  <script src="scenario-plots/scenario-plot.js" defer></script>
-  <script src="scenario-plots/map-plot.js" defer></script>
-</head>
-<body>
-  <nav>
-    <a href="./index.html">Home</a>
-    <a href="./scenario-plots/index.html">Scenario Plots</a>
-  </nav>
-  <!--<h1>City Heat Stress Dashboard</h1>
-  <p class="subtitle">Surface air temperature trends from CMIP6 historical simulations (1850–2014)</p> -->
-
-  <!-- ── PLOT 1 ───────────────────────────────────────────────────────────── -->
-   <!--<section class="plot-section">
-    <h2>Plot 1: Global Mean Surface Air Temperature</h2>
-    <p class="plot-desc">Monthly and 12-month rolling mean of global average surface air temperature across CMIP6 models.</p>
-    <section class="plot-section">
-      <h2>Plot 1: Global Mean Surface Air Temperature</h2>
-      <p class="plot-desc">Monthly and 12-month rolling mean of global average surface air temperature across CMIP6 models.</p> -->
-    
-      <!-- add this 
-      <div id="controls-1">
-        <div class="ctrl-group">
-          <label for="city-select-1">City</label>
-          <select id="city-select-1"></select>
-        </div>
-      </div>
-    
-      <div id="chart-1"></div>
-      <p class="chart-note">Data: CMIP6 NCAR CESM2 historical simulation · Rolling mean computed over 12-month window</p>
-    </section>
-    <div id="chart-1"></div>
-    <p class="chart-note">Data: CMIP6 NCAR CESM2 historical simulation · Rolling mean computed over 12-month window</p>
-  </section> -->
-
-  <!-- ── PLOT 2 ───────────────────────────────────────────────────────────── -->
-  <!-- <section class="plot-section">
-    <h2>Plot 2: City Heat Stress — Temperature by City and Season</h2>
-    <p class="plot-desc">Filter by city and season to explore local surface air temperature trends and anomalies relative to the 1850–1900 baseline.</p>
-
-    <div id="controls">
-      <div class="ctrl-group">
-        <label for="city-select">City</label>
-        <select id="city-select"></select>
-      </div>
-      <div class="ctrl-group">
-        <label>Season</label>
-        <div id="season-pills">
-          <button class="pill active" data-season="all">All</button>
-          <button class="pill" data-season="spring">Spring</button>
-          <button class="pill" data-season="summer">Summer</button>
-          <button class="pill" data-season="fall">Fall</button>
-          <button class="pill" data-season="winter">Winter</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="legend">
-      <span class="legend-item"><span class="swatch monthly"></span>Monthly</span>
-      <span class="legend-item"><span class="swatch rolling"></span>12-mo rolling mean</span>
-      <span class="legend-item"><span class="swatch threshold"></span>Historical summer baseline</span>
-    </div>
-
-    <div id="chart-2"></div>
-    <p class="chart-note">Dashed line = historical summer average (1850–1900) · Anomaly relative to 1850–1900 baseline mean</p>
-  </section> 
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-  <script src="plot1.js"></script> -->
-  <!-- <script src="plot2.js"></script>
-  <section class="plot-section">
-    <h2>Static Plot Drafts</h2>
-    <img src="figures/full_timeseries.png" alt="Average summer and winter temperatures with predictions" class="static-plot">
-    <img src="figures/precipitation.png" alt="Precipitation trends and predictions for selected cities" class="static-plot">
-  </section>
-
-  <h2>Research Question :By what year will San Diego's winter mean exceed its historical summer mean?</h2>
-  <img src="figures/fig6_monthly_heatmap.png" class="static-plot">
-  <img src="figures/fig2_winter_summer_trends.png" class="static-plot">-->
-
-  <!-- ── PLOT 3 ───────────────────────────────────────────────────────────── -->
-<section class="plot-section">
-  <h2>Plot 3: Wet-Bulb Temperature Projections by City and Scenario</h2>
-  <p class="plot-desc">
-    Wet-bulb temperature combines heat and humidity into a physiological stress index.
-    Select a city to bring it to the foreground. Dashed line marks the 28°C human
-    endurance threshold. Scenarios shown: historical (gray), SSP2-4.5 moderate
-    emissions (amber), SSP5-8.5 worst-case (red).
-  </p>
-
-  <div id="city-toggles"></div>
-
-  <div id="legend-3">
-    <span class="legend-item"><span class="swatch" style="background:#888;"></span>Historical</span>
-    <span class="legend-item"><span class="swatch" style="background:#c4740a;"></span>SSP2-4.5</span>
-    <span class="legend-item"><span class="swatch" style="background:#a32d2d;"></span>SSP5-8.5</span>
-    <span class="legend-item">
-      <span class="swatch" style="background:none; border-top: 2px dashed #e24b4a; width:24px; height:0; display:inline-block;"></span>
-      28°C danger threshold
-    </span>
-  </div>
-
-  <div id="chart-3"></div>
-  <p class="chart-note">
-    Wet-bulb temperature computed via Stull (2011) · 12-month rolling mean shown ·
-    Data: CMIP6 CESM2, MPI-ESM1-2-HR, GFDL-ESM4
-  </p>
-</section>
-<script src="plot3.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Climate Scenarios</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js" defer></script>
+    <script src="map-plot.js" defer></script>
+  </head>
+  <body>
+    <nav>
+      <a href="./index.html">Home</a>
+    </nav>
+  </body>
 </html>

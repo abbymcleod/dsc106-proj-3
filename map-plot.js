@@ -3,7 +3,7 @@ const US_ATLAS = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 const MAP_W = 960, MAP_H = 600;
 
 const MAP_SCENARIOS = [
-    { id: "ssp126", label: "SSP1-2.6 — Low",      color: "#2196F3" },
+    { id: "ssp126", label: "SSP1-2.6 — Best",      color: "#2196F3" },
     { id: "ssp245", label: "SSP2-4.5 — Moderate", color: "#FF9800" },
     { id: "ssp370", label: "SSP3-7.0 — High",     color: "#E91E63" },
     { id: "ssp585", label: "SSP5-8.5 — Worst",    color: "#7B1FA2" },
@@ -54,7 +54,7 @@ mapContainer.append("p").attr("class", "subtitle")
 
 // Scenario toggle
 const toggleDiv = mapContainer.append("div").attr("id", "map-controls");
-toggleDiv.append("label").attr("class", "group-label").text("Emissions Scenario");
+toggleDiv.append("label").attr("class", "group-label").text("Emissions Case Scenario");
 const scenBtns = toggleDiv.append("div").attr("class", "btn-group");
 MAP_SCENARIOS.forEach(s => {
     scenBtns.append("button")
@@ -70,6 +70,12 @@ MAP_SCENARIOS.forEach(s => {
             if (displayed) showTooltip(displayed);
         });
 });
+function getSpread(city) {
+    const ssp126 = warmingData.find(w => w.city === city && w.scenario === "ssp126");
+    const ssp585 = warmingData.find(w => w.city === city && w.scenario === "ssp585");
+    if (!ssp126 || !ssp585) return null;
+    return (ssp585.winter_warming - ssp126.winter_warming).toFixed(1);
+}
 
 // Map SVG + flex wrapper
 const mapFlex = mapContainer.append("div").attr("id", "map-flex");
@@ -93,18 +99,20 @@ function updateLegend() {
         item.append("span").text(binLabels[i] + "  ");
     });
 }
-mapContainer.append("div").attr("id", "map-legend");
-updateLegend();
 
 // Tooltip
-const tooltip = mapFlex.append("div").attr("id", "map-tooltip");
+const rightCol = mapFlex.append("div").attr("id", "map-right-col");
+const tooltip = rightCol.append("div").attr("id", "map-tooltip");
 const ttTitle = tooltip.append("h3");
 const ttSvg = tooltip.append("svg");
+const ttAnnotation = tooltip.append("div").attr("id", "tt-annotation");
 
+rightCol.append("div").attr("id", "map-legend");
+updateLegend();
 // ── Load data ──────────────────────────────────────────────────────────────
 Promise.all([
     d3.json(US_ATLAS),
-    d3.csv("../data/city_warming.csv", d => ({
+    d3.csv("./data/city_warming.csv", d => ({
         city:           d.city,
         scenario:       d.scenario,
         winter_warming: +d.winter_warming,
@@ -112,7 +120,7 @@ Promise.all([
         lat:            +d.lat,
         lon:            +d.lon,
     })),
-    d3.csv("../data/seasonal_temps.csv", d => ({
+    d3.csv("./data/seasonal_temps.csv", d => ({
         city:     d.city,
         scenario: d.scenario,
         year:     +d.year,
@@ -224,7 +232,7 @@ function showTooltip(city) {
     // Use all scenarios + historical for y-domain so axis doesn't jump when toggling
     const cityData = seasonalData.filter(d => d.city === city && d.season === "winter");
 
-    ttTitle.text(`${city} — Winter (DJF)`);
+    ttTitle.text(`${city} — Annual Winter (DJF) Mean Temperature`);
 
     ttSvg.attr("width", ttW).attr("height", ttH).selectAll("*").remove();
     const g = ttSvg.append("g").attr("transform", `translate(${ttMargin.left},${ttMargin.top})`);
@@ -241,7 +249,52 @@ function showTooltip(city) {
         .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")));
     g.append("g")
         .call(d3.axisLeft(y).ticks(4).tickFormat(d => `${d}°C`));
+    
+    g.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -ttInnerH / 2)
+    .attr("y", -36)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 10)
+    .attr("fill", "#242424")
+    .text("Temp (°C)");
 
+g.append("text")
+    .attr("x", ttInnerW / 2)
+    .attr("y", ttInnerH + 28)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 10)
+    .attr("fill", "#242424")
+    .text("Year");
+    // if (spread) {
+    // g.append("text")
+    //     .attr("class", "spread-label")
+    //     .attr("x", ttInnerW)
+    //     .attr("y", -8)
+    //     .attr("text-anchor", "end")
+    //     .attr("font-size", 10)
+    //     .attr("fill", "#555")
+    //     .text(`Scenario spread: ${spread}°C (low → worst)`);
+    const spread = getSpread(city);
+    const activeScenarioSpread = (() => {
+    const row126 = warmingData.find(w => w.city === city && w.scenario === "ssp126");
+    const row585 = warmingData.find(w => w.city === city && w.scenario === "ssp585");
+    if (!row126 || !row585) return null;
+    return {
+        low: row126.winter_warming.toFixed(1),
+        high: row585.winter_warming.toFixed(1),
+        spread: spread,
+    };
+})();
+
+d3.select("#tt-annotation").html(
+    activeScenarioSpread
+        ? `<strong>Emissions scenario impact:</strong> Under the most optimistic scenario, 
+           ${city} is projected to warm <strong>${activeScenarioSpread.low}°C</strong> in winter by 2100. 
+           Under the worst case, that rises to <strong>${activeScenarioSpread.high}°C</strong> — 
+           a difference of <strong>${activeScenarioSpread.spread}°C</strong> depending on the path we take.`
+        : ""
+);
     // Historical divider
     g.append("line")
         .attr("x1", x(2015)).attr("x2", x(2015))
@@ -279,7 +332,7 @@ function showTooltip(city) {
             .datum(activeData)
             .attr("fill", "none")
             .attr("stroke", activeScenarioObj?.color)
-            .attr("stroke-width", 2.5)
+            .attr("stroke-width", 1.5)
             .attr("opacity", 1)
             .attr("d", d3.line().x(d => x(d.year)).y(d => y(d.temp_c)).curve(d3.curveCatmullRom)(activeData));
     }
@@ -291,12 +344,12 @@ function showTooltip(city) {
             label: s.id === activeScenario ? s.label + " ★" : s.label,
             color: s.color,
             opacity: s.id === activeScenario ? 1 : 0.55,
-            width: s.id === activeScenario ? 2.5 : 1,
+            width: s.id === activeScenario ? 1.5 : 1,
         })),
     ];
 
     legendItems.forEach((item, i) => {
-        const legendG = g.append("g").attr("transform", `translate(0, ${-ttMargin.top + 4 + i * 14})`);
+        const legendG = g.append("g").attr("transform", `translate(5, ${-ttMargin.top + 4 + i * 14})`);
         legendG.append("line")
             .attr("x1", 0).attr("y1", 5).attr("x2", 16).attr("y2", 5)
             .attr("stroke", item.color)
