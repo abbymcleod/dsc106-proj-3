@@ -1,7 +1,7 @@
 /* City plot styling */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: sans-serif; background: #f9f9f9; padding: 24px; }
-h1 { font-size: 1.4rem; margin-bottom: 4px; }
+h1 { font-size: 1.4rem; margin-bottom: 4px; margin-top: 30px;}
 p.subtitle { font-size: 0.9rem; color: #555; margin-bottom: 20px; }
 #controls { display: flex; gap: 32px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-start; }
 .control-group label.group-label {
@@ -81,4 +81,54 @@ p.subtitle { font-size: 0.9rem; color: #555; margin-bottom: 20px; }
     border-left: 3px solid #ccc;
     border-radius: 0 4px 4px 0;
     max-width: 340px;
+}
+
+nav {
+  display: flex;
+  margin-bottom: 0.5em;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  --border-color: oklch(50% 10% 200 / 40%);
+  border-bottom-color: var(--border-color);
+}
+nav a {
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+  padding: 0.5em;
+}
+nav a.current {
+  border-bottom-width: 0.4em;
+  border-bottom-color: var(--border-color);
+  border-bottom-style: solid;
+  font-weight: bold;
+}
+:root {
+  --color-accent: oklch(0.36 0.01 348.28);
+}
+html {
+  accent-color: var(--color-accent);
+}
+a:hover {
+  border-bottom-width: 0.4em;
+  border-bottom-color: var(--color-accent);
+  border-bottom-style: solid;
+  background-color: color-mix(in oklch, var(--color-accent), canvas 85%);
+}
+
+.writeup-text {
+    margin-top: 30px;
+    line-height: 1.6;
+    color: #333;
+    width: 75%;
+    margin: 0 auto; /* centers it horizontally */
+    
+}
+
+.writeup-title {
+    width: 75%;
+    color: #222;
+    padding-left: 12.5%;
+    
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <title>Writeup</title>
+</head>
+<body class="writeup">
+    <nav>
+      <a href="./index.html">Home</a>
+      <a href="./writeup.html">Writeup</a>
+    </nav>
+    <h1 class="writeup-title">Writeup</h1>
+    <p class="writeup-text">
+        During the data exploration phase of the project, we examined temperature trends across different cities and noticed a clear difference 
+        in projected warming patterns between cities on the East Coast and West Coast. Once we identified this trend, we wanted to design a visualization 
+        that would clearly communicate increases in temperature over time while still allowing users to closely inspect the data for individual cities.
+        <br>
+        <br>
+        One alternative visualization we considered focused on wet-bulb temperature, which combines surface temperature and humidity i
+        nto a measure of heat stress. Our idea was to analyze whether certain cities would cross dangerous heat thresholds under different 
+        climate conditions. However, after experimenting with this approach, we decided not to use it because the visualization was relatively 
+        simple and functioned more like a static graph with minor interactive features added to it. We wanted a design where the interaction itself
+        played a major role in how users explored and understood the data.
+        <br>
+        <br>
+        As a result, we chose our current visualization because it better supported meaningful interactivity and exploration. 
+        Our visual encoding was designed so that each city is represented by a specific color based on its projected winter warming. 
+        This allows users to quickly identify regional patterns and compare levels of warming across locations. When a user clicks on a city, 
+        the interface generates a detailed plot showing winter mean temperature by year, making it easy to examine long-term temperature trends 
+        for that specific location.
+        <br>
+        <br>
+        For the interaction techniques, we included buttons at the top of the visualization that allow users to switch between 
+        different emissions scenarios. This design choice lets users compare how projected warming changes depending on the climate 
+        scenario being viewed. The combination of clickable cities and selectable emissions scenarios creates an experience that would not 
+        be possible in a purely static graph, since users can dynamically explore multiple cities and compare different future outcomes in real time.
+        <br>
+        <br>
+        For this project, each team member developed their own interactive visualization, and as a group we evaluated which plots best 
+        satisfied the project requirements while also presenting the data in the clearest and most concise way. After comparing our ideas, 
+        we selected the visualizations that were the most interactive, informative, and visually effective for communicating our findings.
+        <br>
+        <br>
+        In total, the development process took approximately 3.5–4 people-hours. The most time-consuming aspect of the project was data wrangling 
+        and data exploration. Because the dataset was very large, simply loading, cleaning, and organizing the data required a significant amount of effort 
+        before visualization development could begin. Another major portion of the development time was spent refining the visualizations themselves, 
+        including making small adjustments to layout, formatting, and interactivity so the plots would present the findings in a clean, organized, and 
+        visually appealing manner.
+        
+    </p>
+</body>
+</html>
